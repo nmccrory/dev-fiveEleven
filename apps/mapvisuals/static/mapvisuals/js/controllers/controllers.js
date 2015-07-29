@@ -6,9 +6,9 @@ app.controller('MapController', ['$scope', 'leafletData',
     	//for our leaflet directive
     	angular.extend($scope, {
 			center: {
-				lat: 47.6097,
-				lng: -122.3331,
-				zoom: 5,
+				lat: 39.8282,
+				lng: -98.5795,
+				zoom: 4,
 			},
 			events: {
 	            map: {
@@ -91,8 +91,6 @@ app.controller('MapController', ['$scope', 'leafletData',
             }    
         //^^^^^^^^^^^^^^^^^^^^^^^END INITIALIZATION^^^^^^^^^^^^^^^^^^^^^^^^^//
 
-
-
         //-------GET DATA AND APPEND NEW SVG ELEMENTS TO DOM-------//
             
             // This runs through our geo-JSON file containing the data for the state overlays
@@ -109,10 +107,8 @@ app.controller('MapController', ['$scope', 'leafletData',
 	      			feature2.data(col.features)
 	      				.enter()
 	      				.append("path")
-                        .datum(function(d, i){
-                            // Just for fun I am setting the radius to change dynamically based in the objects index(this is what the "i" is)
-                            //but we will eventually change this to use job data.
-                            return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: i};
+                        .datum(function(d){
+                            return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: ((d.properties.numJobs + (map.getZoom() * map.getZoom() * map.getZoom())) *  0.02)};
                         })
                         .attr("class", "point")
                         .attr("d", path2);

@@ -1,5 +1,6 @@
 from apps.data_storage.models import WriteOnly
 from django.http import HttpResponse, JsonResponse
+
 import json
 from django.shortcuts import render
 
@@ -46,8 +47,6 @@ def toGeo(request):
 
 def statedata(request):
 	print('here')
-	with open('./states.json', encoding='utf-8') as data_file:    
-    		data = json.load(data_file)
-    		print(data)
-		
-	return HttpResponse(data, content_type='application/json')
+	data = open('/Users/new/Desktop/webdev/Coding Dojo /Group_project/job-visualization/apps/mapvisuals/states.json')	
+	print(data)	
+	return HttpResponse(data , content_type='application/json')
