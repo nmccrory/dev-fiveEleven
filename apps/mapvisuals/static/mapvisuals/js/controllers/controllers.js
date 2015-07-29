@@ -102,11 +102,31 @@ app.controller('MapController', ['$scope', 'leafletData',
     	        	.append("path");
 
     	      	// This makes our dots
-	      		d3.json("/mapdata", function(col){ 
+	      		d3.json("/mapdata", function(col){
+                    
+                    var colors = ["#6363FF", "#6373FF", "#63A3FF", "#63E3FF", "#63FFFB", "#63FFCB",
+                                   "#63FF9B", "#63FF6B", "#7BFF63", "#BBFF63", "#DBFF63", "#FBFF63", 
+                                   "#FFD363", "#FFB363", "#FF8363", "#FF7363", "#FF6364"];
+
+                    var heatmapColor = d3.scale.linear()
+                      .domain(d3.range(0, 1, 1.0 / (colors.length - 1)))
+                      .range(colors);
+
+                    // dynamic bit...
+                    var range = [];
+                    for(var i=0; i<col.features.length; i++){
+                        range.push(col.features[i].properties.numJobs);
+                    }
+                    var c = d3.scale.linear().domain(d3.extent(range)).range([0,1]);
+                    // console.log(heatmapColor(c())); 
+                    
                     console.log(col);   
 	      			feature2.data(col.features)
 	      				.enter()
 	      				.append("path")
+                        .style("fill", function(d) {
+                            return heatmapColor(c(d.properties.numJobs));
+                        })
                         .datum(function(d){
                             return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: ((d.properties.numJobs + (map.getZoom() * map.getZoom() * map.getZoom())) *  0.02)};
                         })
