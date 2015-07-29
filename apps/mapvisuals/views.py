@@ -43,10 +43,10 @@ def toGeo(request):
 
 	return HttpResponse(json.dumps(data), content_type='application/json')
 
+
 def statedata(request):
 	print('here')
-
-	with open('./lib/states.json') as data_file:    
+	with open('./states.json', encoding='utf-8') as data_file:    
     		data = json.load(data_file)
     		print(data)
 		
