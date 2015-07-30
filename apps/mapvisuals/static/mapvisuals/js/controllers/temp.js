@@ -1,78 +1,78 @@
 app.controller('MapController', ['$scope', 'leafletData',
 
     function($scope, leafletData) {
-        
-        // Start the map zoomed in on the center of the country 
+    	
+    	// Start the map zoomed in on the center of the country 
         //and add custom event listenters for our leaflet directive
-        angular.extend($scope, {
-            center: {
-                lat: 39.8282,
-                lng: -98.5795,
-                zoom: 5,
-            },
-            events: {
-                map: {
-                    enable: ['zoomstart', 'zoomend'],
-                    logic: 'emit'
-                }
-            }
-        });
+    	angular.extend($scope, {
+			center: {
+				lat: 39.8282,
+				lng: -98.5795,
+				zoom: 5,
+			},
+			events: {
+	            map: {
+	                enable: ['zoomstart', 'zoomend'],
+	                logic: 'emit'
+	            }
+        	}
+		});
       
-        /*********************************************************
-                           MAP INITIALIZATIONS
-        *********************************************************/
-        // Grabs our map objects as a promise and then adds a click handler and runs our 
+  		/*********************************************************
+						   MAP INITIALIZATIONS
+  		*********************************************************/
+  		// Grabs our map objects as a promise and then adds a click handler and runs our 
         // d3Map function which generates our d3 overlay.
         d3.json("/statedata", function(collection) { 
             d3.json("/mapdata", function(col){
                 leafletData.getMap().then(function(map) {
-                    // var popup = L.popup();
-                    
-                    function onMapClick(e) {
-                        popup.setLatLng(e.latlng)
-                            .setContent("You clicked the map at " + e.latlng.toString())
-                            .openOn(map);
-                    }
+                	// var popup = L.popup();
+                	
+                	function onMapClick(e) {
+                	    popup.setLatLng(e.latlng)
+                	       	.setContent("You clicked the map at " + e.latlng.toString())
+                	       	.openOn(map);
+                	}
                 
-                    // L.marker([47.6097, -122.3331])
-                    //  .addTo(map)
-                    //  .bindPopup("<b>Front End Developer</b><br>$85,000/year.")
-                    //  .openPopup();
-                    
-                    map.on('click', onMapClick);
-                    d3Map(map);
+                	// L.marker([47.6097, -122.3331])
+                	// 	.addTo(map)
+                	// 	.bindPopup("<b>Front End Developer</b><br>$85,000/year.")
+                	// 	.openPopup();
+                	
+                	map.on('click', onMapClick);
+                	d3Map(map);
                 });
 
 
                 /*********************************************************
-                                    MAP EVENT HANDLERS
+        							MAP EVENT HANDLERS
                 *********************************************************/
                 // This uses the custom event handlers that we registered at the top
                 //of the document to clear out the old svg and redraw it when the map
                 //is zoomed in or out.
                 
                 $scope.$on('leafletDirectiveMap.zoomstart', function(event){
-                    d3.selectAll('svg').remove();
-                    $scope.$on('leafletDirectiveMap.zoomend', function(event){
-                        leafletData.getMap().then(function(map){
-                            map.getPanes().overlayPane.innerHTML = "";
-                            d3Map(map);
-                        });
-                    });
-                });
+        	    	d3.selectAll('svg').remove();
+        	    	$scope.$on('leafletDirectiveMap.zoomend', function(event){
+        		    	leafletData.getMap().then(function(map){
+        		    		map.getPanes().overlayPane.innerHTML = "";
+        		    		d3Map(map);
+        		    	});
+        	    	});
+        	    });
 
             
             /*********************************************************
                                     D3 STUFFS
             *********************************************************/
                 // MAP DRAWING FUNCTION
-                function d3Map(map){
-                    
+            	function d3Map(map){
+                	
                  //-------------------D3 INITIALIZATION--------------------//
                     
                      // Main SVG which sits in the leaflet overlay pane
                      var svg = d3.select(map.getPanes().overlayPane).append("svg");
-                    
+            		
                      // This is the group which will contain all of our svg elements for our map overlay
                     var g = svg.append("g").attr("class", "leaflet-zoom-hide");
                     var transform = d3.geo.transform({point: projectPoint});
@@ -105,15 +105,15 @@ app.controller('MapController', ['$scope', 'leafletData',
                  //----------------APPEND NEW SVG ELEMENTS TO DOM-------------------//   
                      // This runs through our geo-JSON file containing the data for the state overlays
                     console.log(collection);
-                    var feature = g.selectAll("path")
-                        .data(collection.features)
-                        .enter()
-                        .append("path")
+        	      	var feature = g.selectAll("path")
+        	          	.data(collection.features)
+        	        	.enter()
+        	        	.append("path")
                         .attr("fill-opacity", 1)
                         .attr("fill", "black")
                         .attr("stroke", "#fff");
 
-                
+    	      	
                         // This sets up our color and range to map the various color to different points based
                         //on job availability per point
                         var colors = ["#6363FF", "#6373FF", "#63A3FF", "#63E3FF", "#63FFFB", "#63FFCB",
@@ -131,9 +131,9 @@ app.controller('MapController', ['$scope', 'leafletData',
                         var c = d3.scale.linear().domain(d3.extent(range)).range([0,1]);
                         
                         // Where our job data is actually put into SVG form and appended to the DOM
-                        feature2.data(col.features)
-                            .enter()
-                            .append("path")
+    	      			feature2.data(col.features)
+    	      				.enter()
+    	      				.append("path")
                             .style("fill", function(d) {
                                 return heatmapColor(c(d.properties.numJobs));
                             })
@@ -142,7 +142,7 @@ app.controller('MapController', ['$scope', 'leafletData',
                             })
                             .attr("class", "point")
                             .attr("d", path2);
-                    
+    	      		
              //^^^^^^^^^^^^^^^^^^^^^^^END DATA/APPEND^^^^^^^^^^^^^^^^^^^^^^^//
                     
 
@@ -151,7 +151,7 @@ app.controller('MapController', ['$scope', 'leafletData',
                      //Reposition our SVG's on zoom in/out
                     map.on("viewreset", reset);
                     reset();
-        
+       	
                     function reset() {
                         var bounds = path.bounds(collection),
                             topLeft = bounds[0],
