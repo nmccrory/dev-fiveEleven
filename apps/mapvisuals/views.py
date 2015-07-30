@@ -46,7 +46,19 @@ def toGeo(request):
 
 
 def statedata(request):
-	print('here')
-	data = open('/Users/new/Desktop/webdev/Coding Dojo /Group_project/job-visualization/apps/mapvisuals/states.json')	
-	print(data)	
-	return HttpResponse(data , content_type='application/json')
+	GeoJson = open('/Users/new/Desktop/webdev/Coding Dojo /Group_project/job-visualization/apps/mapvisuals/states.json')
+	CityData = WriteOnly.objects.all()
+	AllStates = json.load(GeoJson)
+	
+	for state in AllStates['features']:
+	  for city in CityData:
+	     if city.stateName == state['properties']['name']:
+	        if 'numJobs' in state['properties']:
+	           print 'exists'
+	           state['properties']['numJobs'] += city.num_jobs
+	        else:
+	           print 'not exists'
+	           state['properties']['numJobs'] = city.num_jobs
+	           
+	GeoJson = json.dumps(AllStates)
+	return HttpResponse(GeoJson , content_type='application/json')

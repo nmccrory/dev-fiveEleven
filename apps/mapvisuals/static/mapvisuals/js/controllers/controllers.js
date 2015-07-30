@@ -56,6 +56,7 @@ app.controller('MapController', ['$scope', 'leafletData',
                     $scope.$on('leafletDirectiveMap.zoomend', function(event){
                         leafletData.getMap().then(function(map){
                             map.getPanes().overlayPane.innerHTML = "";
+                            d3.select(".tooltip").innerHTML = "";
                             d3Map(map);
                         });
                     });
@@ -70,8 +71,8 @@ app.controller('MapController', ['$scope', 'leafletData',
                     
                  //-------------------D3 INITIALIZATION--------------------//
                     
-                     // Main SVG which sits in the leaflet overlay pane
-                     var svg = d3.select(map.getPanes().overlayPane).append("svg");
+                    // Main SVG which sits in the leaflet overlay pane
+                    var svg = d3.select(map.getPanes().overlayPane).append("svg");
                     
                      // This is the group which will contain all of our svg elements for our map overlay
                     var g = svg.append("g").attr("class", "leaflet-zoom-hide");
@@ -95,10 +96,50 @@ app.controller('MapController', ['$scope', 'leafletData',
                         }
                     });
 
+
                     function projectPoint(x, y) {
                         var point = map.latLngToLayerPoint(new L.LatLng(y, x));
                         this.stream.point(point.x, point.y);
-                    }    
+                    }
+
+                    // Helper function to create the tooltip **taken directly form Mike Bostock
+                    d3.helper = {};
+                    d3.helper.tooltip = function(accessor){
+                        return function(selection){
+                            var tooltipDiv;
+                            var bodyNode = d3.select('body').node();
+                            selection.on("mouseover", function(d, i){
+                                // Clean up lost tooltips
+                                d3.select('body').selectAll('div.tooltip').remove();
+                                // Append tooltip
+                                tooltipDiv = d3.select('body').append('div').attr('class', 'tooltip');
+                                var absoluteMousePos = d3.mouse(bodyNode);
+                                tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
+                                    .style('top', (absoluteMousePos[1] - 15)+'px')
+                                    .style('position', 'absolute') 
+                                    .style('z-index', 1001);
+                                // Add text using the accessor function
+                                var tooltipText = accessor(d, i) || '';
+                                // Crop text arbitrarily
+                                //tooltipDiv.style('width', function(d, i){return (tooltipText.length > 80) ? '300px' : null;})
+                                //    .html(tooltipText);
+                            })
+                            .on('mousemove', function(d, i) {
+                                // Move tooltip
+                                var absoluteMousePos = d3.mouse(bodyNode);
+                                tooltipDiv.style('left', (absoluteMousePos[0] + 10)+'px')
+                                    .style('top', (absoluteMousePos[1] - 15)+'px');
+                                var tooltipText = accessor(d, i) || '';
+                                tooltipDiv.html(tooltipText);
+                            })
+                            .on("mouseout", function(d, i){
+                                // Remove tooltip
+                                tooltipDiv.remove();
+                            });
+
+                        };
+                    };    
+                 
                  //^^^^^^^^^^^^^^^^^^^^^^^END INITIALIZATION^^^^^^^^^^^^^^^^^^^^^^^^^//
 
                  
@@ -109,26 +150,37 @@ app.controller('MapController', ['$scope', 'leafletData',
                         .range(colorbrewer.RdYlGn['11']);
 
                     console.log(jobsData);
+                    var zoom = map.getZoom();
                     var feature = g.selectAll("path")
                         .data(stateData.features)
                         .enter()
                         .append("path")
                         .attr("fill-opacity", function(d){
-                            var zoom = map.getZoom();
                             if( zoom < 6){
                                 return 1;
                             } else if(zoom >=6 && zoom < 7){
-                                return 0.6;
-                            } else if (zoom >= 7 && zoom < 8){
                                 return 0.3;
-                            } else if (zoom >= 8 && zoom < 9){
+                            } else if (zoom >= 7 && zoom < 8){
                                 return 0.2;
-                            } else {
+                            } else if (zoom >= 8 && zoom < 9){
                                 return 0.1;
+                            } else {
+                                return 0;
                             }
                         })
                         .attr("fill", "black")
-                        .attr("stroke", "#fff");
+                        .attr("stroke", function(d){
+                            if(zoom >= 9){
+                                return "#666";
+                            } else {
+                                return "#fff";
+                            }
+                        })
+                        .attr("stroke-width", function(d){
+                            if(zoom >= 9){
+                                return "2";
+                            }
+                        });
 
                 
                         // This sets up our color and range to map the various color to different points based
@@ -146,26 +198,14 @@ app.controller('MapController', ['$scope', 'leafletData',
                             range.push(jobsData.features[i].properties.numJobs);
                         }
                         var c = d3.scale.linear().domain(d3.extent(range)).range([0,1]);
-                        
-                        var tooltip = d3.select("body")
-                            .append("div")
-                            .style("position", "absolute")
-                            .style("z-index", "10000")
-                            .style("color", "#000")
-                            .style("visibility", "hidden");
 
                         // Where our job data is actually put into SVG form and appended to the DOM
                         feature2.data(jobsData.features)
                             .enter()
                             .append("path")
-                            .on("click", function(d){
-                                var coordinates = d3.mouse(this);
-                                return tooltip.style("visibility", "visible")
-                                .text(d.name + "\nNumber of jobs: " + d.radius)
-                                .attr("class", "tooltip")
-                                .style("left", coordinates[0] + "px")
-                                .style("top", coordinates[1] + "px");
-                            })
+                            .call(d3.helper.tooltip(function(d, i){
+                                      return "<b>"+d.name + "</b><br/>Jobs: "+d.radius;
+                            }))
                             .style("fill", function(d) {
                                 return heatmapColor(c(d.properties.numJobs));
                             })
