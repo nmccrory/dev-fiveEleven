@@ -8,7 +8,7 @@ app.controller('MapController', ['$scope', 'leafletData',
 			center: {
 				lat: 39.8282,
 				lng: -98.5795,
-				zoom: 4,
+				zoom: 5,
 			},
 			events: {
 	            map: {
@@ -83,7 +83,16 @@ app.controller('MapController', ['$scope', 'leafletData',
             var g2 = svg.append("g").attr("class", "leaflet-zoom-hide");
             var feature2 = g2.selectAll("path.point");
             var transform2 = d3.geo.transform({point: projectPoint});
-            var path2 = d3.geo.path().projection(transform2).pointRadius(function(d){ return d.radius; });
+            var path2 = d3.geo.path().projection(transform2).pointRadius(function(d){ 
+                var zoom = map.getZoom();
+                if( zoom < 7){
+                    return Math.min(((d.radius + zoom) *  0.09), 36);
+                } else if(zoom >= 7 && zoom < 10){
+                    return Math.max(((d.radius + zoom) *  0.038), 5);
+                } else{
+                    return Math.max(((d.radius + zoom) *  0.028), 5);
+                }
+            });
 
             function projectPoint(x, y) {
                 var point = map.latLngToLayerPoint(new L.LatLng(y, x));
@@ -128,7 +137,7 @@ app.controller('MapController', ['$scope', 'leafletData',
                             return heatmapColor(c(d.properties.numJobs));
                         })
                         .datum(function(d){
-                            return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: ((d.properties.numJobs + (map.getZoom() * map.getZoom() * map.getZoom())) *  0.02)};
+                            return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: d.properties.numJobs};
                         })
                         .attr("class", "point")
                         .attr("d", path2);
