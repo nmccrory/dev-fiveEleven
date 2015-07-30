@@ -23,8 +23,8 @@ app.controller('MapController', ['$scope', 'leafletData',
         *********************************************************/
         // Grabs our map objects as a promise and then adds a click handler and runs our 
         // d3Map function which generates our d3 overlay.
-        d3.json("/statedata", function(collection) { 
-            d3.json("/mapdata", function(col){
+        d3.json("/statedata", function(stateData) { 
+            d3.json("/mapdata", function(jobsData){
                 leafletData.getMap().then(function(map) {
                     // var popup = L.popup();
                     
@@ -39,7 +39,7 @@ app.controller('MapController', ['$scope', 'leafletData',
                     //  .bindPopup("<b>Front End Developer</b><br>$85,000/year.")
                     //  .openPopup();
                     
-                    map.on('click', onMapClick);
+                    // map.on('click', onMapClick);
                     d3Map(map);
                 });
 
@@ -104,12 +104,29 @@ app.controller('MapController', ['$scope', 'leafletData',
                  
                  //----------------APPEND NEW SVG ELEMENTS TO DOM-------------------//   
                      // This runs through our geo-JSON file containing the data for the state overlays
-                    console.log(collection);
+                    var stateColors = d3.scale.linear()
+                        .domain(d3.range(0, 1, 1.0 / (colorbrewer.RdYlGn['11'].length-1)))
+                        .range(colorbrewer.RdYlGn['11']);
+
+                    console.log(jobsData);
                     var feature = g.selectAll("path")
-                        .data(collection.features)
+                        .data(stateData.features)
                         .enter()
                         .append("path")
-                        .attr("fill-opacity", 1)
+                        .attr("fill-opacity", function(d){
+                            var zoom = map.getZoom();
+                            if( zoom < 6){
+                                return 1;
+                            } else if(zoom >=6 && zoom < 7){
+                                return 0.6;
+                            } else if (zoom >= 7 && zoom < 8){
+                                return 0.3;
+                            } else if (zoom >= 8 && zoom < 9){
+                                return 0.2;
+                            } else {
+                                return 0.1;
+                            }
+                        })
                         .attr("fill", "black")
                         .attr("stroke", "#fff");
 
@@ -125,20 +142,35 @@ app.controller('MapController', ['$scope', 'leafletData',
                           .range(colors);
 
                         var range = [];
-                        for(var i=0; i<col.features.length; i++){
-                            range.push(col.features[i].properties.numJobs);
+                        for(var i=0; i<jobsData.features.length; i++){
+                            range.push(jobsData.features[i].properties.numJobs);
                         }
                         var c = d3.scale.linear().domain(d3.extent(range)).range([0,1]);
                         
+                        var tooltip = d3.select("body")
+                            .append("div")
+                            .style("position", "absolute")
+                            .style("z-index", "10000")
+                            .style("color", "#000")
+                            .style("visibility", "hidden");
+
                         // Where our job data is actually put into SVG form and appended to the DOM
-                        feature2.data(col.features)
+                        feature2.data(jobsData.features)
                             .enter()
                             .append("path")
+                            .on("click", function(d){
+                                var coordinates = d3.mouse(this);
+                                return tooltip.style("visibility", "visible")
+                                .text(d.name + "\nNumber of jobs: " + d.radius)
+                                .attr("class", "tooltip")
+                                .style("left", coordinates[0] + "px")
+                                .style("top", coordinates[1] + "px");
+                            })
                             .style("fill", function(d) {
                                 return heatmapColor(c(d.properties.numJobs));
                             })
                             .datum(function(d){
-                                return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: d.properties.numJobs};
+                                return {type: "Point", coordinates: [d.geometry.coordinates[1], d.geometry.coordinates[0]], radius: d.properties.numJobs, name:d.properties.name};
                             })
                             .attr("class", "point")
                             .attr("d", path2);
@@ -153,7 +185,7 @@ app.controller('MapController', ['$scope', 'leafletData',
                     reset();
         
                     function reset() {
-                        var bounds = path.bounds(collection),
+                        var bounds = path.bounds(stateData),
                             topLeft = bounds[0],
                             bottomRight = bounds[1];
 
