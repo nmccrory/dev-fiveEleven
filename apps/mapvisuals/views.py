@@ -46,7 +46,7 @@ def toGeo(request):
 
 
 def statedata(request):
-	GeoJson = open('/Users/new/Desktop/webdev/Coding Dojo /Group_project/job-visualization/apps/mapvisuals/states.json')
+	GeoJson = open('/Users/new/Desktop/webdev/Coding Dojo /Group_project/job-visualization/apps/mapvisuals/static/mapvisuals/js/lib/states.json')
 	CityData = WriteOnly.objects.all()
 	AllStates = json.load(GeoJson)
 	
@@ -62,3 +62,31 @@ def statedata(request):
 	           
 	GeoJson = json.dumps(AllStates)
 	return HttpResponse(GeoJson , content_type='application/json')
+
+def jensload(request):
+	return render(request, 'mapvisuals/index.html')
+
+def jens(request):
+	cities = WriteOnly.objects.filter(job_title ="Front End")[:10]
+
+	cityList = list()
+	for city in cities:
+		cityList.append(city.city_name)
+
+	totalFront = WriteOnly.objects.filter(job_title = "Front End", city_name__in =cityList).order_by('city_name')
+	totalBack = WriteOnly.objects.filter(job_title = "Back End", city_name__in =cityList).order_by('city_name')
+	totalFull = WriteOnly.objects.filter(job_title = "Full Stack", city_name__in =cityList).order_by('city_name')
+	
+	results = list()
+	for x in range(0, 10):
+		data = {
+			'State': cityList[x], 
+			'freq': {
+				'Front': totalFront[x].num_jobs,
+				'Back': totalBack[x].num_jobs,
+				'Full': totalFull[x].num_jobs,
+			},
+		}
+		results.append(data)
+
+	return HttpResponse(json.dumps(results), content_type='application/json')

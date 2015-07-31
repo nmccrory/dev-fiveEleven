@@ -5,16 +5,13 @@
 	<title>Project</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- <link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/css/lib/bootstrap.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/css/lib/bootstrap-theme.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/css/lib/bootstrap-social.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/css/lib/font-awesome.css' %}"> -->
+
 	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/css/style.css' %}"> 
-	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/js/lib/leaflet-1.0.0-b1/leaflet.css' %}">  
+	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/js/lib/leaflet-1.0.0-b1/leaflet.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'mapvisuals/css/lib/materialize.min.css' %}">  
 	
 	<script type="text/javascript" src="{% static 'mapvisuals/js/lib/jquery-1.9.1.js' %}"></script>
-   <!--  <script type="text/javascript" src="{% static 'mapvisuals/js/lib/jquery-ui.js' %}"></script>
-	<script type="text/javascript" src="{% static 'mapvisuals/js/lib/bootstrap.js' %}"></script> -->
+	<script type="text/javascript" src="{% static 'mapvisuals/js/lib/materialize.min.js' %}"></script>
 	<script type="text/javascript" src="{% static 'mapvisuals/js/lib/d3/d3.js' %}"></script>
 	<script type="text/javascript" src="{% static 'mapvisuals/js/lib/color-brewer.js' %}"></script>
 
@@ -26,7 +23,8 @@
 
 	<script type="text/javascript" src="{% static 'mapvisuals/js/modules/modules.js' %}"></script>
 	<script type="text/javascript" src="{% static 'mapvisuals/js/factories/factories.js' %}"></script>
-	<script type="text/javascript" src="{% static 'mapvisuals/js/controllers/controllers.js' %}"></script>
+	<script type="text/javascript" src="{% static 'mapvisuals/js/controllers/mapController.js' %}"></script>
+	<script type="text/javascript" src="{% static 'mapvisuals/js/controllers/pieChartController.js' %}"></script>
 	<script type="text/javascript" src="{% static 'mapvisuals/js/directives/directives.js' %}"></script>
 	<script type="text/javascript" src="{% static 'mapvisuals/js/services/services.js' %}"></script>
 	<script type="text/javascript" src="{% static 'mapvisuals/js/partialRoutes.js' %}"></script>
@@ -66,14 +64,56 @@
 			padding: 5px;
 			border-radius: 2px;
 		}
-
 	</style>
 </head>
-<body>
- 	<div ng-app="app" class="container" ng-controller="MapController as main">
- 		<leaflet event-broadcast="events" defaults="defaults" center="center" height="600px" width="1200px">
- 			<div class="tooltip"></div>
- 		</leaflet>
-    </div>
+<body ng-app="app">
+ 	<div id ='main'>
+ 		<div class="col s12">
+	 		<div class="container" id='mid'>
+	 			<h1>FiveEleven Cohort</h1>
+	 			<hr>
+	 		</div>
+
+		   	<div class="col s12 m8 l9">
+		   	  	<div class="row">
+			      	<ul class="tabs">
+			        	<li class="tab col s3"><a href="#tab1">Map 1</a></li>
+			        	<li class="tab col s3"><a href="#tab2">Map 2</a></li>
+			        	<li class="tab col s3"><a href="#tab3">Map 3</a></li>
+			      	</ul>
+			     </div>
+			</div>
+		</div>
+
+	    <div id="tab1" class="col s12">
+	    	<div class="container" ng-controller="MapController as main">
+				<leaflet event-broadcast="events" defaults="defaults" center="center" height="500px" width="1000px">
+					<div class="tooltip"></div>
+				</leaflet>
+			</div>
+	    </div>
+
+		<div id="tab2" class="col s12">
+			<div id='dashboard' class="container" ng-controller="PieChartController as pie"></div>
+	    </div>
+				
+		<div id="tab3" class="col s12">Test 3</div>	
+		<div class="col s12 m4 l3">
+			<form action="#">
+			    <div>
+			    	<input name="group1" type="radio" id="test1" />
+			    	<label for="test1">Front End</label>
+			    </div>
+			    <div>
+			    	<input name="group1" type="radio" id="test2" />
+			    	<label for="test2">Back End</label>
+			    </div>
+			   	<div>
+			    	<input name="group3" type="radio" id="test3" />
+			    	<label for="test3">Full Stack</label>
+			    </div>
+			</form>
+		</div>
+	</div>
 </body>
 </html>
