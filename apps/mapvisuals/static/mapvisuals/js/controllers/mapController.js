@@ -34,11 +34,6 @@ app.controller('MapController', ['$scope', 'leafletData',
                             .setContent("You clicked the map at " + e.latlng.toString())
                             .openOn(map);
                     }
-                
-                    // L.marker([47.6097, -122.3331])
-                    //  .addTo(map)
-                    //  .bindPopup("<b>Front End Developer</b><br>$85,000/year.")
-                    //  .openPopup();
                     
                     // map.on('click', onMapClick);
                     d3Map(map);
@@ -98,6 +93,23 @@ app.controller('MapController', ['$scope', 'leafletData',
                             return Math.max(((d.radius + zoom) *  0.028), 5);
                         }
                     });
+
+                    // This sets up our color and range to map the various color to different points based
+                    //on job availability per point
+                    var colors = ["#6363FF", "#6373FF", "#63A3FF", "#63E3FF", "#63FFFB", "#63FFCB",
+                                   "#63FF9B", "#63FF6B", "#7BFF63", "#BBFF63", "#DBFF63", "#FBFF63", 
+                                   "#FFD363", "#FFB363", "#FF8363", "#FF7363", "#FF6364"];
+
+                    var heatmapColor = d3.scale.linear()
+                      .domain(d3.range(0, 1, 1.0 / (colors.length-1)))
+                      .range(colors);
+
+                    var range = [];
+                    for(var i=0; i<jobsData.features.length; i++){
+                        console.log(jobsData.features[i].properties.numJobs);
+                        range.push(jobsData.features[i].properties.numJobs);
+                    }
+                    var c = d3.scale.linear().domain(d3.extent(range)).range([0,9]);
 
 
                     function projectPoint(x, y) {
@@ -162,9 +174,12 @@ app.controller('MapController', ['$scope', 'leafletData',
                         .data(stateData.features)
                         .enter()
                         .append("path")
+                        .attr("class", "state")
                         .attr("fill-opacity", function(d){
-                            if( zoom < 6){
+                            if( zoom < 5){
                                 return 0.8;
+                            }else if( zoom <= 6){
+                                return 0.6;
                             } else if(zoom >=6 && zoom < 7){
                                 return 0.3;
                             } else if (zoom >= 7 && zoom < 8){
@@ -176,10 +191,10 @@ app.controller('MapController', ['$scope', 'leafletData',
                             }
                         })
                         // .style("fill", function(d) {
-                        //     if(d.properties.numJobs < 1200){
+                        //     if(d.properties.numJobs < 2900){
                         //         return stateColors(colorRange(d.properties.numJobs));
                         //     } else if(!d.properties.numJobs){
-                        //         return "lightblue";;
+                        //         return "lightblue";
                         //     } else{
                         //         return "red";
                         //     }
@@ -197,23 +212,6 @@ app.controller('MapController', ['$scope', 'leafletData',
                                 return "2";
                             }
                         });
-
-                
-                        // This sets up our color and range to map the various color to different points based
-                        //on job availability per point
-                        var colors = ["#6363FF", "#6373FF", "#63A3FF", "#63E3FF", "#63FFFB", "#63FFCB",
-                                       "#63FF9B", "#63FF6B", "#7BFF63", "#BBFF63", "#DBFF63", "#FBFF63", 
-                                       "#FFD363", "#FFB363", "#FF8363", "#FF7363", "#FF6364"];
-
-                        var heatmapColor = d3.scale.linear()
-                          .domain(d3.range(0, 1, 1.0 / (colors.length-1)))
-                          .range(colors);
-
-                        var range = [];
-                        for(var i=0; i<jobsData.features.length; i++){
-                            range.push(jobsData.features[i].properties.numJobs);
-                        }
-                        var c = d3.scale.linear().domain(d3.extent(range)).range([0,1]);
 
                         // Where our job data is actually put into SVG form and appended to the DOM
                         feature2.data(jobsData.features)

@@ -10,7 +10,6 @@ def index(request):
 	content = {
 	'info': WriteOnly.objects.all()
 	}
-
 	return render(request, 'mapvisuals/index.html', content)
 
 def toGeo(request):

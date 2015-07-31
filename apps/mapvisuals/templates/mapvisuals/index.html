@@ -44,7 +44,7 @@
 		  position: relative;
 		}
 
-		path:hover {
+		.state:hover {
 		  fill-opacity: 0;
 		  transition: all 0.5s ease;
 		}
@@ -67,7 +67,7 @@
 	</style>
 </head>
 <body ng-app="app">
- 	<div id ='main'>
+ 	<div id ='main' ng-controller="MapController as map">
  		<div class="col s12">
 	 		<div class="container" id='mid'>
 	 			<h1>FiveEleven Cohort</h1>
@@ -76,26 +76,15 @@
 
 		   	<div class="col s12 m8 l9">
 		   	  	<div class="row">
-			      	<ul class="tabs">
-			        	<li class="tab col s3"><a href="#tab1">Map 1</a></li>
-			        	<li class="tab col s3"><a href="#tab2">Map 2</a></li>
-			        	<li class="tab col s3"><a href="#tab3">Map 3</a></li>
+			      	<ul class="">
+			        	<li class=" col s3"><a href="#/">Map 1</a></li>
+			        	<li class=" col s3"><a href="#/piechart">Map 2</a></li>
+			        	<li class=" col s3"><a href="#">Map 3</a></li>
 			      	</ul>
 			     </div>
 			</div>
 		</div>
-
-	    <div id="tab1" class="col s12">
-	    	<div class="container" ng-controller="MapController as main">
-				<leaflet event-broadcast="events" defaults="defaults" center="center" height="500px" width="1000px">
-					<div class="tooltip"></div>
-				</leaflet>
-			</div>
-	    </div>
-
-		<div id="tab2" class="col s12">
-			<div id='dashboard' class="container" ng-controller="PieChartController as pie"></div>
-	    </div>
+		<div ng-view=""></div>
 				
 		<div id="tab3" class="col s12">Test 3</div>	
 		<div class="col s12 m4 l3">
