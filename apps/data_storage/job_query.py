@@ -35,7 +35,8 @@ def job_query(job_title):
 	    "q": job_title,
 	    "returnCities": True,
 	    "returnJobTitles": True,
-	    "userip": json.loads(urlopen("http://ip.jsontest.com/").read().decode('utf-8'))['ip'],
+	    "userip": '2601:600:8a00:d600:8db5:6675:d4e3:c9d4',
+	    # "userip": json.loads(urlopen("http://ip.jsontest.com/").read().decode('utf-8'))['ip'],
 	    "useragent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36"
 	})
 
@@ -48,5 +49,5 @@ def job_query(job_title):
 	                           headers={
 	                               "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.81 Safari/537.36"
 	                           })
-	
+
 	return response_gd.json()['response']['cities']

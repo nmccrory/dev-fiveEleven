@@ -23,3 +23,13 @@ class WriteOnly(models.Model):
 	created_at = models.DateField()
 	class Meta:
 		db_table = 'WriteOnly'
+		
+class DiceJobs(models.Model):
+	title = models.TextField()
+	skills = models.TextField()
+	salary = models.IntegerField()
+	location = models.TextField()
+	posted = models.TextField()
+	created_at = models.DateField()
+	class Meta:
+		db_table = 'DiceJobs'

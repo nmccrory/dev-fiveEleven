@@ -1,6 +1,7 @@
-from apps.data_storage.models import WriteOnly
+from apps.data_storage.models import WriteOnly, DiceJobs
 from django.http import HttpResponse, JsonResponse
-
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core import serializers
 import json
 from django.shortcuts import render
 
@@ -45,7 +46,7 @@ def toGeo(request):
 
 
 def statedata(request):
-	GeoJson = open('/Users/new/Desktop/webdev/Coding Dojo /Group_project/job-visualization/apps/mapvisuals/static/mapvisuals/js/lib/states.json')
+	GeoJson = open('/Users/nick/documents/Coding Dojo/projects/merge_branch/job-visualization/apps/mapvisuals/static/mapvisuals/js/lib/states.json')
 	CityData = WriteOnly.objects.all()
 	AllStates = json.load(GeoJson)
 	
@@ -66,8 +67,9 @@ def jensload(request):
 	return render(request, 'mapvisuals/index.html')
 
 def jens(request):
+	print "We made it to jens"
 	cities = WriteOnly.objects.filter(job_title ="Front End")[:10]
-
+	print cities
 	cityList = list()
 	for city in cities:
 		cityList.append(city.city_name)
@@ -79,7 +81,7 @@ def jens(request):
 	results = list()
 	for x in range(0, 10):
 		data = {
-			'State': cityList[x], 
+			'State': totalFront[x].city_name, 
 			'freq': {
 				'Front': totalFront[x].num_jobs,
 				'Back': totalBack[x].num_jobs,
@@ -89,3 +91,7 @@ def jens(request):
 		results.append(data)
 
 	return HttpResponse(json.dumps(results), content_type='application/json')
+
+def getSalary(request):
+	data = serializers.serialize('json', DiceJobs.objects.all())
+	return HttpResponse(data, content_type='application/json')

@@ -11,6 +11,11 @@ app.config(function ($routeProvider) {
     	controller: "PieChartController",
     	controllerAs: "pie"
     })
+    .when('/salary', {
+        templateUrl: 'static/mapvisuals/partials/salary.html',
+        controller: "salaryController",
+        controllerAs: "salary"
+    })
     .otherwise({
         redirectTo: '/',
     });

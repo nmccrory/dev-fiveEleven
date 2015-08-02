@@ -20,7 +20,7 @@ app.controller('PieChartController', ['$scope',
 	        function histoGram(fD){
 	            var hG={};    
 	            var hGDim = {t: 60, r: 0, b: 30, l: 0};
-	            hGDim.w = 960 - hGDim.l - hGDim.r; 
+	            hGDim.w = 800 - hGDim.l - hGDim.r; 
 	            hGDim.h = 300 - hGDim.t - hGDim.b;
 	                
 	            //create svg for histogram.
