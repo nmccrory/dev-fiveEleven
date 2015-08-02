@@ -116,5 +116,5 @@ STATIC_ROOT = 'staticfiles'
 STATIC_URL = 'apps/mapvisuals/static/'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, '../../apps/mapvisuals/static/'),
+    os.path.join(BASE_DIR, 'apps/mapvisuals/static/'),
 )
